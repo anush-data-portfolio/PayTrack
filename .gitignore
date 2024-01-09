@@ -1,0 +1,8 @@
+test.ipynb
+__pycache__
+.env
+.DS_Store
+*.ipynb
+help.txt
+logs/
+*.db

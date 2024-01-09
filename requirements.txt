@@ -1,0 +1,9 @@
+pandas
+requests
+numpy
+pydantic
+sqlalchemy
+psycopg2-binary
+apache-airflow-providers-celery
+alembic
+apache-airflow-providers-postgres
