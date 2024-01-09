@@ -16,7 +16,7 @@ The primary objectives of this project are as follows:
 
 3. **Data Transformation**: Implement necessary data transformations to ensure data consistency and accuracy. This may include data cleaning, validation, and standardization.
 
-4. **Dashboard Creation**: Generate a dashboard using Notion to visualize my work hours data, providing me with an easy-to-read summary.
+4. **Dashboard Creation**: Generate a dashboard using Streamlit to visualize my work hours data, providing me with an easy-to-read summary.
 
 ## Project Components
 
@@ -36,7 +36,7 @@ Data transformation procedures are implemented to clean, validate, and standardi
 
 ### 4. Dashboard Generation
 
-A Notion dashboard is generated to display my work hours data. This dashboard will provide insights into work hours trends, hours worked, and any other relevant metrics.
+A Real time Streamlit dashboard is generated to display my work hours data. This dashboard will provide insights into work hours trends, hours worked, and any other relevant metrics.
 
 
 ## Project Benefits
