@@ -34,21 +34,12 @@ class Loader:
         for department in self.data.jobs:
             query = f"""
                 INSERT INTO departments (name, id)
-                VALUES ('{department.name}', {department.badge_id});
+                VALUES ('{department.name}', {department.badge_id})
+                ON CONFLICT (id) DO NOTHING;
+
             """
             departments_query += query
         return departments_query
-
-    def __insert_paydetails(self):
-        """Insert paydetails data into the database"""
-        paydetails_query = ""
-        for department in self.data.jobs:
-            query = f"""
-                INSERT INTO paydetails (id, pay_rate)
-                VALUES ({department.pay.pay_id}, {department.pay.pay_rate});
-            """
-            paydetails_query += query
-        return paydetails_query
 
     def __insert_employeedetails(self):
         """Insert employeedetails data into the database"""
@@ -73,7 +64,6 @@ class Loader:
         
         return employeedetails_query
 
-
     def __insert_timecards(self):
         """Insert timecards data into the database"""
         timecards_query = ""
@@ -86,8 +76,12 @@ class Loader:
                 """
                 timecards_query += query
         return timecards_query
+    
+    def clearn_timestamp(self, timestamp):
+        # remove 
+        pass
 
-    def __insert_punches(self,format_time=False):
+    def __insert_punches(self, format_time=False):
         """Insert punches data into the database"""
         punches_query = ""
         user = self.data
@@ -98,56 +92,93 @@ class Loader:
                 punch_in = punch.punch_in
                 punch_out = punch.punch_out
 
+                # time_format = 'HH24:MI:SS.USZ' if format_time else ''
                 if format_time:
-                    query = f"""
-                        INSERT INTO punches (punch_date, punch_in, punch_out)
-                        VALUES (
-                            TO_TIMESTAMP('{date}', 'YYYY-MM-DD"T"HH24:MI:SS.USZ'),
-                            TO_TIMESTAMP('{punch_in}', 'YYYY-MM-DD"T"HH24:MI:SS.USZ'),
-                            TO_TIMESTAMP('{punch_out}', 'YYYY-MM-DD"T"HH24:MI:SS.USZ')
-                        )
-                        ON CONFLICT (punch_date, punch_in, punch_out)
-                        DO UPDATE SET punch_in = EXCLUDED.punch_in, punch_out = EXCLUDED.punch_out;
-                    """
-                else:
-                    query = f"""
-                        INSERT INTO punches (punch_date, punch_in, punch_out)
-                        VALUES (
-                            '{date}',
-                            '{punch_in}',
-                            '{punch_out}'
-                        )
-                        ON CONFLICT (punch_date, punch_in, punch_out)
-                        DO UPDATE SET punch_in = EXCLUDED.punch_in, punch_out = EXCLUDED.punch_out;
-                    """
+                    # combine date with time
+                    punch_in = date + "T" + punch_in
+                    punch_out = date  + "T" + punch_out
+
+                query = f"""
+                    INSERT INTO punches (punch_date, punch_in, punch_out,pay_rate)
+                    VALUES (
+                        TO_TIMESTAMP('{date}', 'YYYY-MM-DD'),
+                        TO_TIMESTAMP('{punch_in}', 'YYYY-MM-DD"T"HH24:MI:SS.USZ'),
+                        TO_TIMESTAMP('{punch_out}', 'YYYY-MM-DD"T"HH24:MI:SS.USZ'),
+                        {department.pay.pay_rate}
+                    )
+                    ON CONFLICT (punch_date, punch_in, punch_out)
+                    DO UPDATE SET punch_in = EXCLUDED.punch_in, punch_out = EXCLUDED.punch_out;
+                """
                 punches_query += query
+
         return punches_query
 
+    def __insert_timecard_punches(self, format_time=False):
+        """Insert timecard_punches data into the database"""
+        timecard_punches_query = ""
+        user = self.data
+
+        for department in user.jobs:
+            for punch in department.timecard.punches:
+                punch_date = punch.date
+                punch_in = punch.punch_in
+                punch_out = punch.punch_out
+
+                if format_time :
+                    punch_in = punch_date+"T"+ punch_in
+                    punch_out = punch_date+"T"+ punch_out
+
+                date_format = "'YYYY-MM-DD'" if format_time else "'YYYY-MM-DD'"
+
+                timecard_id_query = f"""
+                    SELECT id FROM timecards
+                    WHERE department_id = {department.badge_id}
+                """
+                # time without timezone
+                # punch_in = f"TO_TIMESTAMP('{punch_in}', {punch_in_format})"
+
+                punch_id_query = f"""
+                    SELECT DISTINCT id FROM punches
+                    WHERE punch_date = TO_TIMESTAMP('{punch_date}', {date_format})::date
+                    AND punch_in = TO_TIMESTAMP('{punch_in}', 'YYYY-MM-DD"T"HH24:MI:SS.USZ')::time
+                    AND punch_out = TO_TIMESTAMP('{punch_out}', 'YYYY-MM-DD"T"HH24:MI:SS.USZ')::time
+                """
+
+                query = f"""
+                    INSERT INTO timecard_punches (timecard_id, punch_id)
+                    VALUES (({timecard_id_query}), ({punch_id_query}));
+                """
 
 
+
+                timecard_punches_query += query
+
+        return timecard_punches_query
 
     def update_punches(self):
-        punches = self.__insert_punches()
-        return punches
-
-
-
+        punches = self.__insert_punches(format_time=True)
+        timecard_punches = self.__insert_timecard_punches(format_time=True)
+        query = f"""
+            {punches}
+            {timecard_punches}
+        """
+        return query
 
     def get_query(self):
         """Generate a single query to insert all data into the database"""
         user_query = self.__insert_user()
         departments_query = self.__insert_departments()
-        paydetails_query = self.__insert_paydetails()
         employeedetails_query = self.__insert_employeedetails()
         timecards_query = self.__insert_timecards()
-        punches_query = self.__insert_punches(format_time=True)
+        punches_query = self.__insert_punches(format_time=False)
+        timecard_punches_query = self.__insert_timecard_punches(format_time=False)
 
         query = f"""
             {user_query}
             {departments_query}
-            {paydetails_query}
             {employeedetails_query}
             {timecards_query}
             {punches_query}
+            {timecard_punches_query}
         """
         return query

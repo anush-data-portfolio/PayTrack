@@ -5,12 +5,6 @@ from sqlalchemy.schema import UniqueConstraint
 
 Base = declarative_base()
 
-# Paydetails Model
-class Paydetails(Base):
-    __tablename__ = 'paydetails'
-
-    id = Column(Integer, primary_key=True)
-    pay_rate = Column(Float, nullable=False)
 
 # Punches Model
 class Punches(Base):
@@ -21,6 +15,7 @@ class Punches(Base):
     punch_in = Column(Time, nullable=False)
     punch_out = Column(Time)
     hours_worked = Column(Interval, server_default="0 seconds", nullable=False)
+    pay_rate = Column(Float, nullable=False)
 
     __table_args__ = (
         UniqueConstraint('punch_date', 'punch_in', 'punch_out', name='punches_compound_key'),
@@ -41,7 +36,6 @@ class Departments(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    pay_id = Column(Integer, ForeignKey('paydetails.id'))
 
 # Employeedetails Model
 class Employeedetails(Base):

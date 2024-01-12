@@ -6,3 +6,6 @@ __pycache__
 help.txt
 logs/
 *.db
+*.log
+*.csv
+*.json

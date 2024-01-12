@@ -48,10 +48,20 @@ def get_query(**kwargs):
         f.write(query)
     return query
 
+def get_json_query():
+    file = 'dags/data/2023.json'
+    with open(file) as f:
+        data= eval(json.load(f)) 
+    user = User(**data)
+    loader = Loader(user)
+    query = loader.update_punches()
+    with open('dags/temp/scripts/insert_punches.sql', 'w') as f:
+        f.write(query)
+    return query
     
 
 dag = DAG(
-    dag_id='setup',
+    dag_id='catchup',
     default_args=default_args,
     description='Extract, transform and load data into postgres',
     tags=['etl'],
@@ -87,10 +97,23 @@ with dag:
         dag=dag
     )
 
+    load_json_query = PythonOperator(
+        task_id='load_json_query',
+        python_callable=get_json_query,
+        provide_context=True,
+        dag=dag
+    )
+
     insert_data = PostgresOperator(
         task_id='insert_data',
         postgres_conn_id='paytrack_db',
         sql="/temp/scripts/setup.sql"
+    )
+
+    insert_json_data = PostgresOperator(
+        task_id='insert_json_data',
+        postgres_conn_id='paytrack_db',
+        sql="/temp/scripts/insert_punches.sql"
     )
 
     # remove sql files from temp/scripts
@@ -99,8 +122,17 @@ with dag:
         bash_command='rm -rf /opt/airflow/dags/temp/scripts/setup.sql'
     )
 
+    clear_json_temp = BashOperator(
+        task_id='clear_json_temp',
+        bash_command='rm -rf /opt/airflow/dags/temp/scripts/insert_punches.sql'
+    )
+
     end_pipeline = EmptyOperator(task_id='end_pipeline')
     create_tables
-    start_pipeline >> extract  >> load_query >> insert_data >> clear_temp >> end_pipeline
+    start_pipeline >> [extract, load_json_query]  # Start both pipelines simultaneously
 
-    # start_pipeline >> extract >> create_tables >> load_query >> insert_data >> end_pipeline
+    extract >>  load_query >> insert_data >> clear_temp >> end_pipeline
+
+    load_json_query >> insert_json_data >> clear_json_temp >> end_pipeline
+
+

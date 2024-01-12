@@ -1,9 +1,3 @@
--- Paydetails Table
-CREATE TABLE paydetails (
-    id SERIAL NOT NULL,
-    pay_rate FLOAT NOT NULL,
-    PRIMARY KEY (id)
-);
 
 -- Punches Table
 CREATE TABLE punches (
@@ -11,6 +5,7 @@ CREATE TABLE punches (
     punch_date DATE NOT NULL,
     punch_in TIME NOT NULL,
     punch_out TIME,
+    pay_rate FLOAT NOT NULL,
     hours_worked INTERVAL GENERATED ALWAYS AS (punch_out - punch_in) STORED,
     PRIMARY KEY (id),
     CONSTRAINT punches_compound_key UNIQUE (punch_date, punch_in, punch_out)
@@ -20,7 +15,7 @@ CREATE TABLE punches (
 CREATE TABLE users (
     id SERIAL NOT NULL,
     first_name VARCHAR,
-    username VARCHAR NOT NULL,
+    username VARCHAR UNIQUE NOT NULL,
     password VARCHAR NOT NULL,
     PRIMARY KEY (id)
 );
@@ -29,9 +24,7 @@ CREATE TABLE users (
 CREATE TABLE departments (
     id SERIAL NOT NULL,
     name VARCHAR NOT NULL,
-    pay_id INTEGER,
-    PRIMARY KEY (id),
-    FOREIGN KEY (pay_id) REFERENCES paydetails (id)
+    PRIMARY KEY (id)
 );
 
 -- Employeedetails Table

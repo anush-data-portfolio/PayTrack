@@ -1,48 +1,83 @@
-# PayTrack
-# Data Engineering Project - Personal Work Hours Tracking and Visualization
+# PayTrack - README
 
-## Project Overview
+## Data Engineering Project - Personal Work Hours Tracking and Visualization
 
-This data engineering project is designed to assist me, a graduate student working part-time in order to make some extra spending cash and save for the future. 
-My college provides a website where employees can access their work-hour data. However, the information available on the website is limited to date, clock-in time, and clock-out time. To gain more insights and effectively manage my work hours, I decided to create a solution that extracts, stores and visualizes this data.
+### Project Overview
 
-## Project Objectives
+This data engineering project aims to assist a graduate student (the user) who works part-time, in tracking and visualizing their work hours for better management. While the college provides a website with basic work-hour data, the user decided to create a solution that extracts, stores, and visualizes additional insights.
 
-The primary objectives of this project are as follows:
+### Project Objectives
 
-1. **Data Extraction**: Develop a data extraction process to collect my work hours data from the Kronos website using its API.
+The primary objectives of this project include:
 
-2. **Data Storage**: Create and maintain a relational database to store the extracted data securely.
+1. **Data Extraction**: Develop a process to collect work hours data from the Kronos website using its API.
 
-3. **Data Transformation**: Implement necessary data transformations to ensure data consistency and accuracy. This may include data cleaning, validation, and standardization.
+2. **Data Storage**: Create and maintain a relational database to securely store the extracted data.
 
-4. **Dashboard Creation**: Generate a dashboard using Streamlit to visualize my work hours data, providing me with an easy-to-read summary.
+3. **Data Transformation**: Implement necessary procedures for data cleaning, validation, and standardization.
 
-## Project Components
+4. **Dashboard Creation**: Generate a Streamlit dashboard for visualizing work hours data.
 
-The project comprises the following components:
+### Project Components
 
-### 1. Data Extraction
+#### 1. Data Extraction
 
-A script or program is developed to interact with the API that is used to populate the website and extract my work hours data, including date, clock-in time, and clock-out time.
+A script or program interacts with the Kronos API to extract work hours data, including date, clock-in time, and clock-out time.
 
-### 2. Database Management
+#### 2. Database Management
 
-A relational database is created to store my extracted data. This database may consist of one or more tables representing the different aspects of my work hours data. This component is responsible for maintaining data integrity.
+A relational database (Postgres on Docker) is used to store the extracted data, maintaining data integrity.
 
-### 3. Data Transformation
+#### 3. Data Transformation
 
-Data transformation procedures are implemented to clean, validate, and standardize the extracted data, ensuring that it is ready for visualization.
+Procedures are implemented to clean, validate, and standardize the extracted data.
 
-### 4. Dashboard Generation
+#### 4. Dashboard Generation
 
-A Real time Streamlit dashboard is generated to display my work hours data. This dashboard will provide insights into work hours trends, hours worked, and any other relevant metrics.
+A real-time Streamlit dashboard displays work hours data, providing insights into trends, hours worked, and relevant metrics.
 
+### Project Benefits
 
-## Project Benefits
+This project offers the following benefits:
 
-This data engineering project offers the following benefits:
-
-- Efficiently tracks my work hours.
+- Efficiently tracks work hours.
 - Provides data visualization for better insights.
-- Facilitates better management of my part-time work.
+- Facilitates better management of part-time work.
+
+### Data Source
+
+- API: Kronos API to extract work hours data
+- JSON: Backed-up JSON file containing work hours data from 2023-2024
+
+### DataBase
+
+- Database: Postgres on Docker
+
+### DAGS
+
+#### catchup
+
+This DAG extracts data from the source API, creates tables in the database, and loads the data into the tables. It is typically run once for every user to extract available data from the API and load it into the database.
+
+![Image of the catchup DAG](Notes/catchup.png)
+
+#### update punches
+
+This DAG extracts punches data from the source API and updates the database with new data for every user on a daily basis.
+
+![Image of the update punches DAG](Notes/update_punch.png)
+
+### Dashboard
+
+- Dashboard: Streamlit dashboard to visualize data from the database.
+- Dashboard is updated in real-time with data from the database.
+- Dashboard initial view:
+
+![Image of the dashboard](Notes/dashboard_1.png)
+![Image of the dashboard](Notes/dashboard_2.png)
+
+The dashboard initially shows fake generated data, but the user can log in using credentials to view their data. (Currently, the dashboard is not deployed on a server, so the user can only view the dashboard locally after running the catchup DAG with their credentials)
+
+### Usage
+
+To run the project, simply execute `docker-compose up`.
