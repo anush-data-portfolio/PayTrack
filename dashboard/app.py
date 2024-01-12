@@ -11,7 +11,13 @@ from crud import DBHandler
 
 
 def login():
-    # Create an empty container
+    """
+    Display a login form, authenticate user credentials, and return username and password.
+
+    Returns:
+    tuple: A tuple containing username and password.
+    """
+
     placeholder = st.empty()
 
     actual_username = "username"
@@ -28,7 +34,7 @@ def login():
     session = auth.get_session(username, password)
     if submit and session:
         placeholder.empty()
-        db = DBHandler("POSTGRES_URI")
+        db = DBHandler("DATABASE_URI")
         user = db.get_name(username)
         st.success(f"Welcome {user}")
         return username, password
@@ -37,11 +43,19 @@ def login():
         st.write("Please check your credentials")
         return None, None
     return None, None
-
-    
-
+        
 def load_dashboard_data(username, fake):
-    POSTGRES_URI = 
+    """
+    Load dashboard data, display various metrics, and visualizations.
+
+    Parameters:
+    - username: User's username.
+    - fake (bool): Flag indicating whether to use fake data.
+
+    Returns:
+    None
+    """
+    POSTGRES_URI = "DATABASE_URI"
     db = DBHandler(POSTGRES_URI)
     if fake:
         main_df= generate_punches(num_rows=300, start_date='2023-01-01', end_date='2023-12-31')
@@ -80,6 +94,13 @@ def load_dashboard_data(username, fake):
 
 
 def main():
+    """
+    Main function to set page configuration, handle login, and load dashboard data.
+
+    Returns:
+    None
+    """
+
     set_page_config()
     username, password = None, None
     if st.sidebar.checkbox("Login"):

@@ -6,6 +6,19 @@ import random
 
 
 def generate_punches(num_rows=100, start_date='2023-01-01', end_date='2024-01-31', hourly_rate=14.2, job_types=['cashier', 'stocker', 'manager']):
+    """
+    Generate fake punch data for a specified number of rows and date range.
+
+    Parameters:
+    - num_rows (int, optional): Number of rows to generate. Defaults to 100.
+    - start_date (str, optional): Start date in 'YYYY-MM-DD' format. Defaults to '2023-01-01'.
+    - end_date (str, optional): End date in 'YYYY-MM-DD' format. Defaults to '2024-01-31'.
+    - hourly_rate (float, optional): Hourly rate for the punches. Defaults to 14.2.
+    - job_types (list, optional): List of job types. Defaults to ['cashier', 'stocker', 'manager'].
+
+    Returns:
+    pd.DataFrame: DataFrame containing fake punch data with columns 'date', 'punch_in', 'punch_out', 'hours_worked', 'type', 'rate'.
+    """
     fake = Faker()
     random.seed(42)
     # date string into datetime object

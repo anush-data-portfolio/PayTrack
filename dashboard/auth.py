@@ -3,7 +3,27 @@ from config import Config
 
 
 class Auth:
-    # cookie based authentication
+    """
+    Auth class for cookie-based authentication.
+
+    Attributes:
+    - payload (dict): Dictionary containing username and password for authentication.
+    - session (requests.Session): Session object for making authenticated requests.
+    - config (Config): Configuration object.
+
+    Methods:
+    - __init__: Initialize Auth object.
+    - __login: Login to the API.
+    - get_session: Return the authenticated session.
+
+    Usage:
+    auth = Auth()
+    session = auth.get_session(username, password)
+    if session:
+        # Authenticated session is obtained
+    else:
+        # Authentication failed
+    """
     def __init__(self) -> None:
         """Initialize Auth object"""
         self.payload = {'username': None,
@@ -12,7 +32,12 @@ class Auth:
         self.config = Config()
     
     def __login(self) -> None:
-        """Login to the API"""
+        """
+        Login to the API.
+
+        Raises:
+        - Exception: If login fails.
+        """
         try:
             print("Logging in")
             re = self.session.post(self.config.AUTH_API, data=self.payload)
@@ -34,7 +59,16 @@ class Auth:
 
     
     def get_session(self, username: str, password: str) -> requests.Session:
-        """Return the session"""
+        """
+        Return the authenticated session.
+
+        Parameters:
+        - username (str): User's username.
+        - password (str): User's password.
+
+        Returns:
+        requests.Session: Authenticated session if successful, otherwise None.
+        """
         print("Authenticating...")
         self.payload['username'] = username
         self.payload['password'] = password

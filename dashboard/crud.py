@@ -8,6 +8,29 @@ import pandas as pd
 
 
 class DBHandler:
+    """
+    Database handler class for interacting with the PostgreSQL database.
+
+    Attributes:
+    - engine: SQLAlchemy database engine.
+    - Session: Session class for creating database sessions.
+    - Base: Declarative base class for defining database models.
+    - session: Database session object.
+
+    Methods:
+    - __init__: Initialize the DBHandler object.
+    - get_user: Retrieve user information based on username.
+    - get_name: Retrieve the first name of the user based on username.
+    - get_punchinfo: Process punch information and return it as a DataFrame.
+    - get_punches: Retrieve punch information for a given username.
+
+    Usage:
+    db = DBHandler("postgresql://anush:password@localhost:5433/paytrack")
+    user_info = db.get_user("username")
+    user_name = db.get_name("username")
+    punch_data = db.get_punches("username")
+    """
+
     def __init__(self, db_path):
         self.engine = create_engine(db_path)
         self.Session = sessionmaker(bind=self.engine)
@@ -15,12 +38,40 @@ class DBHandler:
         self.session = self.Session()
     
     def get_user(self, username):
+        """
+        Retrieve user information based on username.
+
+        Parameters:
+        - username (str): User's username.
+
+        Returns:
+        model.Users: User information.
+        """
+
         return self.session.query(Users).filter(Users.username == username).first()
     def get_name(self, username):
+        """
+        Retrieve the first name of the user based on username.
+
+        Parameters:
+        - username (str): User's username.
+
+        Returns:
+        str: User's first name.
+        """
         user = self.get_user(username)
         return user.first_name
     
     def get_punchinfo(self, punch_list):
+        """
+        Process punch information and return it as a DataFrame.
+
+        Parameters:
+        - punch_list (list): List of punch information.
+
+        Returns:
+        pd.DataFrame: DataFrame containing processed punch information.
+        """
         punches = []
         for data in punch_list:
             punch = data[0]
@@ -39,6 +90,16 @@ class DBHandler:
 
 
     def get_punches(self, username):
+        """
+        Retrieve punch information for a given username.
+
+        Parameters:
+        - username (str): User's username.
+
+        Returns:
+        pd.DataFrame: DataFrame containing punch information.
+        """
+
         user = self.get_user(username)
         user_id = user.id
 

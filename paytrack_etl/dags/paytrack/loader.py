@@ -6,12 +6,23 @@ from cryptography.fernet import Fernet
 
 class Loader:
     def __init__(self, user) -> None:
+        """
+        Initialize Loader object.
+
+        Parameters:
+        - user: User object containing data for loading.
+        """
         self.data: User = user
+
     
     def encrypt_password(self):
         """
-        Encrypt the password using the key
-        The key will be use to decrypt the password later
+        Encrypt the password using the key.
+
+        The key will be used to decrypt the password later.
+
+        Returns:
+        str: Encrypted password.
         """
         key = Fernet.generate_key()
         password = self.data.password
@@ -19,8 +30,14 @@ class Loader:
         encrypted_password = f.encrypt(password.encode())
         return encrypted_password.decode()
 
+
     def __insert_user(self):
-        """Insert user data into the database"""
+        """
+        Insert user data into the database.
+
+        Returns:
+        str: SQL query string.
+        """
         user = self.data
         query = f"""
             INSERT INTO users (username, password, first_name)
@@ -29,7 +46,12 @@ class Loader:
         return query
 
     def __insert_departments(self):
-        """Insert department data into the database"""
+        """
+        Insert department data into the database
+
+        Returns:
+        str: SQL query string.
+        """
         departments_query = ""
         for department in self.data.jobs:
             query = f"""
@@ -42,7 +64,11 @@ class Loader:
         return departments_query
 
     def __insert_employeedetails(self):
-        """Insert employeedetails data into the database"""
+        """Insert employeedetails data into the database
+
+        Returns:
+        str: SQL query string.
+        """
         employeedetails_query = ""
         
         for department in self.data.jobs:
@@ -65,7 +91,11 @@ class Loader:
         return employeedetails_query
 
     def __insert_timecards(self):
-        """Insert timecards data into the database"""
+        """Insert timecards data into the database
+
+        Returns:
+        str: SQL query string.
+        """
         timecards_query = ""
         user = self.data
         if user.jobs:
@@ -82,7 +112,11 @@ class Loader:
         pass
 
     def __insert_punches(self, format_time=False):
-        """Insert punches data into the database"""
+        """Insert punches data into the database
+
+        Returns:
+        str: SQL query string.
+        """
         punches_query = ""
         user = self.data
         for department in user.jobs:
@@ -114,7 +148,11 @@ class Loader:
         return punches_query
 
     def __insert_timecard_punches(self, format_time=False):
-        """Insert timecard_punches data into the database"""
+        """Insert timecard_punches data into the database
+
+        Returns:
+        str: SQL query string.
+        """
         timecard_punches_query = ""
         user = self.data
 
@@ -156,6 +194,12 @@ class Loader:
         return timecard_punches_query
 
     def update_punches(self):
+        """
+        Generate a single query to update all the punches for the day into the database
+
+        Returns:
+        str: SQL query string.
+        """
         punches = self.__insert_punches(format_time=True)
         timecard_punches = self.__insert_timecard_punches(format_time=True)
         query = f"""
@@ -165,7 +209,11 @@ class Loader:
         return query
 
     def get_query(self):
-        """Generate a single query to insert all data into the database"""
+        """Generate a single query to insert all data into the database
+
+        Returns:
+        str: SQL query string.
+        """
         user_query = self.__insert_user()
         departments_query = self.__insert_departments()
         employeedetails_query = self.__insert_employeedetails()

@@ -12,7 +12,12 @@ from datetime import date
 
 class Paytrack:
     def __init__(self,is_today=False) -> None:
-        """Initialize Paytrack object"""
+        """
+        Initialize Paytrack object.
+
+        Parameters:
+        - is_today (bool): Flag to indicate whether to consider today's data.
+        """
         self.api_url: str = Config().API_URL
         self.user: User = None 
         self.session: requests.Session = None
@@ -23,7 +28,15 @@ class Paytrack:
 
     
     def __get_timecards(self, department:Department) -> dict:
-        """Get the timecard"""
+        """
+        Get the timecard.
+
+        Parameters:
+        - department (Department): Department object.
+
+        Returns:
+        dict: Timecard data.
+        """
         if self.is_today:
             url = f"{self.config.TIMECARD}{department.employee_id}/{department.pay.pay_id}/{self.yesterday}/{self.today}"
         else:
@@ -33,19 +46,18 @@ class Paytrack:
         timecard = self.__parse_timecard(data, department)
         return timecard
 
-        
-    def __format_time(self, time: str) -> datetime.time:
-        """Format the time"""
-        if time == None:
-            return None
-        time = time[11:19]
-        formatted_time = datetime.strptime(time, '%H:%M:%S')
-        new_time = formatted_time - timedelta(hours=4)
-        return new_time.time()  
-    
-
-
     def __parse_timecard(self, data, department: Department) -> Timecard:
+        """
+        Parse the timecard.
+
+        Parameters:
+        - data: Timecard data.
+        - department (Department): Department object.
+
+        Returns:
+        Timecard: Parsed timecard.
+        """
+
         punches = []
         for days in data:
             days = days['days']
@@ -70,7 +82,16 @@ class Paytrack:
         return timecard
 
     def __parse_department_details(self, data) -> bool:
-        """Set the department details"""
+        """
+        Set the department details.
+
+        Parameters:
+        - data: Department details data.
+
+        Returns:
+        bool: True if successful, False otherwise.
+        """
+
         data = data['list']
         if len(data) == 0:
             raise Exception("No department details found")
@@ -100,7 +121,13 @@ class Paytrack:
         self.user.jobs = jobs
         return True    
     def __set_user_info(self) -> bool:
-        """Set the user info"""
+        """
+        Set the user info.
+
+        Returns:
+        bool: True if successful, False otherwise.
+        """
+
         try:
             self.user = User(
                 username = Config().USERNAME,
@@ -112,24 +139,48 @@ class Paytrack:
         return True
     
     def __get_user(self) -> User:
-        """Return the user"""
+        """
+        Return the user.
+
+        Returns:
+        User: User object.
+        """
         self.__set_user_info()
         return self.user
 
     def __get_session(self) -> requests.Session:
+        """
+        Get the session.
+
+        Returns:
+        requests.Session: Session object.
+        """
+
         print("Getting session")
         auth = Auth()
         session = auth.get_session(self.user)
         return session
 
     def __get_employee_info(self) -> dict:
-        """Get the employee info"""
+        """
+        Get the employee info.
+
+        Returns:
+        dict: Employee info data.
+        """
         endpoint = f"/rest/employeebyusername/{self.user.username}"
         response = self.session.get(self.api_url + endpoint)
         data = response.json()
         return data
     
     def __get_department_info(self) -> bool:
+        """
+        Get the department info.
+
+        Returns:
+        bool: True if successful, False otherwise.
+        """
+
         Departmentinfo = self.__get_employee_info()
         data = self.__parse_department_details(Departmentinfo)
         if data:
@@ -137,6 +188,13 @@ class Paytrack:
         return False
 
     def get_pay_data(self):
+        """
+        Get pay data.
+
+        Returns:
+        User: User object with pay data.
+        """
+
         User = self.__get_user()
         self.session = self.__get_session()
         try:
