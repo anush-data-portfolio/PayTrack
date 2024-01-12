@@ -2,6 +2,8 @@
 
 ## Data Engineering Project - Personal Work Hours Tracking and Visualization
 
+![Image of the Pipeline](Notes/pipeline.png)
+
 ### Project Overview
 
 This data engineering project aims to assist a graduate student (the user) who works part-time, in tracking and visualizing their work hours for better management. While the college provides a website with basic work-hour data, the user decided to create a solution that extracts, stores, and visualizes additional insights.
